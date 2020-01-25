@@ -1,0 +1,19 @@
+<html>
+
+<body>
+<script>
+  window.addEventListener('load', function(ev){
+    var ws = new WebSocket('ws://localhost:8080/ws/greetings')
+
+    ws.addEventListener('open', function(e){
+      ws.send("Hello Cloud")
+    })
+
+    ws.addEventListener('message', function(msg){
+      console.log('Message rcvd: ' + msg.data)
+    })
+  })
+
+</script>
+</body>
+</html>

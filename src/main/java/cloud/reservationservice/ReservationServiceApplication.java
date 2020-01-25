@@ -10,10 +10,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.r2dbc.connectionfactory.R2dbcTransactionManager;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.ReactiveTransactionManager;
@@ -21,7 +23,15 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
+import org.springframework.web.reactive.socket.WebSocketHandler;
+import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter;
 import reactor.core.publisher.Flux;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
@@ -50,6 +60,56 @@ public class ReservationServiceApplication {
         SpringApplication.run(ReservationServiceApplication.class, args);
     }
 
+}
+
+@Configuration
+class GreetingsWebSocketConfiguration {
+
+    @Bean
+    WebSocketHandler webSocketHandler(GreetingService greetingService) {
+        return session -> {
+            return session.send(session.receive().map(//-
+                    wsMsg -> wsMsg.getPayloadAsText())
+                    .map(GreetingRequest::new)
+                    .flatMap(greetingService::greet)//-
+                    .map(GreetingResponse::getMessage)
+                    .map(session::textMessage));
+        };
+
+    }
+
+    @Bean
+    SimpleUrlHandlerMapping simpleUrlHandlerMapping(WebSocketHandler webSocketHandler) {
+        return new SimpleUrlHandlerMapping(Map.of("/ws/greetings", webSocketHandler), 10);
+    }
+
+    @Bean
+    WebSocketHandlerAdapter webSocketHandlerAdapter() {
+        return new WebSocketHandlerAdapter();
+    }
+}
+
+@Service
+class GreetingService {
+    @MessageMapping("/greetings")
+    Flux<GreetingResponse> greet(GreetingRequest request) {
+        return Flux.fromStream(Stream.generate(
+                () -> new GreetingResponse("Hello " + request.getName() + " at " + Instant.now()))).delayElements(Duration.ofSeconds(1));
+    }
+}
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+class GreetingRequest {
+    private String name;
+}
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+class GreetingResponse {
+    private String message;
 }
 
 @Service
