@@ -1,7 +1,7 @@
 # Read Me First
 The following was discovered as part of building this project:
 
-* The original package name 'cloud.reservation-service' is invalid and this project uses 'cloud.reservationservice' instead.
+* The original package name 'cloud.reservation-service' is invalid and this project uses 'cloud.reactive' instead.
 
 # Getting Started
 
