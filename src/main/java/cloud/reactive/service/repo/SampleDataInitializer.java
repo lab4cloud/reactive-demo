@@ -12,14 +12,15 @@ import org.springframework.stereotype.Component;
 public class SampleDataInitializer {
     private final ReservationService reservationService;
     private final ReservationRepository reservationRepository;
+    private String[] friends = {"Best Friend", "Good Friend", "Other Good Friend"};
 
     @EventListener(ApplicationReadyEvent.class)
     public void ready() {
 
         this.reservationService
                 .deleteAll()
-                .thenMany(reservationService.saveAll("Best Friend", "Good Friend", "Other Good Friend"))
-                .thenMany(reservationRepository.findAll())
+                .thenMany(reservationService.saveAll(friends))
+                .thenMany(reservationService.findAll())
                 .subscribe(log::info);
     }
 }

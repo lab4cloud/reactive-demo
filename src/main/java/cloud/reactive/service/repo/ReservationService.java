@@ -17,8 +17,9 @@ public class ReservationService {
     Flux<Reservation> saveAll(String... names) {
         return this.transactionalOperator.transactional(
                 Flux.fromArray(names).map(name -> new Reservation(null, name))
-                        .flatMap(this.reservationRepository::save).doOnNext(reservation -> Assert.isTrue(isValid(reservation)
-                        , "Name should start with Capital letter.")));
+                        .flatMap(this.reservationRepository::save)
+                        .doOnNext(reservation -> Assert.isTrue(isValid(reservation),
+                                "Name should start with Capital letter.")));
     }
 
     Flux<Reservation> findAll() {
