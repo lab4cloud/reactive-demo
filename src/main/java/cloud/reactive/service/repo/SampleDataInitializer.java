@@ -16,11 +16,10 @@ public class SampleDataInitializer {
     @EventListener(ApplicationReadyEvent.class)
     public void ready() {
 
-        var saved = this.reservationService.saveAll("Best Friend", "Good Friend", "Other Good Friend");
-        this.reservationRepository
+        this.reservationService
                 .deleteAll()
-                .thenMany(saved)
-                .thenMany(this.reservationRepository.findAll())
+                .thenMany(reservationService.saveAll("Best Friend", "Good Friend", "Other Good Friend"))
+                .thenMany(reservationRepository.findAll())
                 .subscribe(log::info);
     }
 }

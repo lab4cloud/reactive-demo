@@ -6,7 +6,7 @@
     var ws = new WebSocket('ws://localhost:8080/ws/greetings')
 
     ws.addEventListener('open', function(e){
-      ws.send("Hello Cloud")
+      ws.send("Hello Cloud " + Math.floor(Math.random() * 10))
     })
 
     ws.addEventListener('message', function(msg){

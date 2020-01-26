@@ -1,7 +1,7 @@
 package cloud.reactive.service;
 
-import cloud.reactive.service.repo.ReservationRepository;
 import cloud.reactive.service.entity.Reservation;
+import cloud.reactive.service.repo.ReservationRepository;
 import io.r2dbc.spi.ConnectionFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,6 +18,10 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 @SpringBootApplication
 public class ReservationServiceApplication {
 
+    public static void main(String[] args) {
+        SpringApplication.run(ReservationServiceApplication.class, args);
+    }
+
     @Bean
     ReactiveTransactionManager reactiveTransactionManager(ConnectionFactory cf) {
         return new R2dbcTransactionManager(cf);
@@ -33,10 +37,6 @@ public class ReservationServiceApplication {
         return route()
                 .GET("/reservations",
                         request -> ok().body(reservationRepository.findAll(), Reservation.class)).build();
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(ReservationServiceApplication.class, args);
     }
 
 }
