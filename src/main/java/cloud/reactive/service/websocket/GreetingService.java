@@ -6,13 +6,15 @@ import reactor.core.publisher.Flux;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.stream.Stream;
+
+import static java.util.stream.Stream.generate;
+import static reactor.core.publisher.Flux.fromStream;
 
 @Service
 class GreetingService {
     @MessageMapping("/greetings")
     Flux<GreetingResponse> greet(GreetingRequest request) {
-        return Flux.fromStream(Stream.generate(
+        return fromStream(generate(
                 () -> new GreetingResponse("Hello " + request.getName() + " at " + Instant.now()))).delayElements(Duration.ofSeconds(1));
     }
 }
